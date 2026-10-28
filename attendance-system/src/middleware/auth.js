@@ -43,7 +43,7 @@ const requireRole = (...roles) => (req, res, next) => {
 function sameOrigin(req, res, next) {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
   const origin = req.get('origin');
-  if (origin) {
+  if (origin && origin !== 'null') {
     try {
       if (new URL(origin).host !== req.get('host')) return res.status(403).send('Cross-site request blocked.');
     } catch (e) { return res.status(403).send('Bad origin.'); }
