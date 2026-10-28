@@ -15,13 +15,15 @@ services:
         generateValue: true
       - key: TIMEZONE
         value: Asia/Dhaka
-      - key: SEED_DEMO
-        value: "true"
-      - key: DEMO_PASSWORD
+      - key: COMPANY_NAME
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
         sync: false
       - key: VAPID_PUBLIC_KEY
         sync: false
       - key: VAPID_PRIVATE_KEY
         sync: false
       - key: VAPID_SUBJECT
-        value: mailto:admin@example.com
+        sync: false

@@ -115,3 +115,7 @@ legend{font-weight:600;padding:0 6px}
   .band{padding:20px}.band-num{font-size:36px}
 }
 @media (prefers-reduced-motion:no-preference){.side{transition:transform .2s ease}}
+
+.btn.danger{background:#b42318;border-color:#b42318}
+.btn.danger:hover{background:#912018}
+.link.danger{color:#b42318}

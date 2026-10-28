@@ -1,6 +1,7 @@
 const db = require('../db/pool');
+const config = require('../config');
 
-const DEFAULTS = { company_name: 'Your Company', duplicate_gap_minutes: '2' };
+const DEFAULTS = { company_name: config.companyName, duplicate_gap_minutes: '2' };
 let cache = null;
 let loadedAt = 0;
 

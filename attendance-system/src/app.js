@@ -72,6 +72,7 @@ app.use('/', require('./routes/home'));
 app.use('/', require('./routes/setup'));
 app.use('/', require('./routes/attendance'));
 app.use('/employees', require('./routes/employees'));
+app.use('/users', require('./routes/users'));
 app.use('/devices', require('./routes/devices'));
 app.use('/reports', require('./routes/reports'));
 app.use('/notifications', require('./routes/notifications'));

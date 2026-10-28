@@ -20,7 +20,7 @@
     ? [['/', 'My day'], ['/my-attendance', 'My attendance'], ['/profile', 'Profile']]
     : [['/', 'Overview'], ['/attendance', 'Attendance'], ['/employees', 'Employees'], ['/reports', 'Reports'], ['/notifications', 'Alerts'],
        ['/shifts', 'Shifts'], ['/holidays', 'Holidays']]
-        .concat(user.role === 'admin' ? [['/devices', 'Devices'], ['/settings', 'Settings'], ['/audit', 'Audit log']] : [])
+        .concat(user.role === 'admin' ? [['/users', 'Users'], ['/devices', 'Devices'], ['/settings', 'Settings'], ['/audit', 'Audit log']] : [])
         .concat([['/profile', 'Profile']]);
   const isActive = (href) => href === '/' ? path === '/' : path.startsWith(href) || (href === '/my-attendance' && path.startsWith('/attendance/employee'));
 %>

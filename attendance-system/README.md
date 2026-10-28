@@ -5,12 +5,13 @@ Node.js, Express, EJS and PostgreSQL. Leave and payroll are intentionally left f
 
 ## What it does
 
-- **Device integration**: ZKTeco ADMS endpoint at `/iclock`, device settings (IP, port, API URL, serial number) stored in the database and editable in the dashboard, connection test, fake punch simulator.
+- **Device integration**: ZKTeco ADMS endpoint at `/iclock`, device settings (IP, port, API URL, serial number) stored in the database and editable in the dashboard, connection test.
 - **Roles**: Admin (everything), HR (employees, shifts, holidays, attendance, reports), Staff (own day and own history).
 - **Attendance engine**: first punch is check-in, last punch is check-out, double taps merged. Late in, early out, overtime, missing check-out, absent, weekly off and holidays are calculated per shift.
 - **Dashboard**: live today view (refreshes every 20 seconds), 7-day chart, department breakdown, needs-attention list.
 - **Reports**: daily detail and per-employee summary, filtered by dates, department and employee. Download as Excel or PDF.
 - **Alerts**: late arrival, absence, missing check-out and early departure go to an in-app inbox and, when VAPID keys are set, to Admin and HR phones as push notifications.
+- **User management**: Admin adds, edits, disables and deletes sign-in users (Users page). Admin can edit or permanently delete employees. HR can edit employees.
 - **Audit log** of employee, device, shift, holiday, settings and manual punch changes.
 
 ## Run locally with Docker
@@ -19,18 +20,7 @@ Node.js, Express, EJS and PostgreSQL. Leave and payroll are intentionally left f
 docker compose up --build
 ```
 
-Open http://localhost:3000 and sign in with `admin`, `hr` or `staff`. The password is `Demo@12345` (change `DEMO_PASSWORD` before the first start, and change it again from Profile).
-The first start creates demo employees, one device (serial `ZKDEMO0001`) and 30 days of history.
-
-Try the live flow in a second terminal:
-
-```bash
-npm install
-node scripts/simulate-punch.js --pin 1003            # one punch, right now
-node scripts/simulate-punch.js --count 5             # five random employees
-node scripts/simulate-punch.js --pin 1003 --time "2026-10-27 09:25:00"
-node scripts/simulate-punch.js --loop 5              # a random punch every 5 seconds
-```
+The database starts empty. Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` (10+ characters) in the environment before the first start and the first Admin is created automatically. After that, add shifts, holidays, employees and devices from the dashboard.
 
 ## Run without Docker
 
@@ -45,14 +35,14 @@ npm run dev
 1. **Neon**: create a project, copy the connection string (it contains `sslmode=require`).
 2. **GitHub**: push this folder to a repository.
 3. **Render**: New > Blueprint (uses `render.yaml`), or New > Web Service with build command `npm install --omit=dev` and start command `npm start`. Health check path `/healthz`.
-4. Environment variables: `DATABASE_URL` (Neon), `JWT_SECRET` (generated), `TIMEZONE=Asia/Dhaka`, `SEED_DEMO=true` for the first deploy only, `DEMO_PASSWORD`.
-5. Open the Render URL, sign in as `admin`, change the password, then set `SEED_DEMO=false`.
+4. Environment variables: `DATABASE_URL` (Neon), `JWT_SECRET` (generated), `TIMEZONE=Asia/Dhaka`, `COMPANY_NAME`, `ADMIN_USERNAME` and `ADMIN_PASSWORD` (first Admin, created only while the database has no users).
+5. Open the Render URL and sign in with the Admin you set, then delete `ADMIN_PASSWORD` from the environment.
 
 Notes for production:
 
 - The Render free plan sleeps after inactivity. A sleeping service misses device pushes until it wakes, and the 15-minute close job does not run. Use a paid always-on instance for real attendance.
 - The device pushes to `http://<host>/iclock`. Render redirects HTTP to HTTPS, and some ZKTeco firmware does not follow redirects. Test with the real device before relying on it. If the device cannot connect, put it behind a small VPS or reverse proxy that accepts plain HTTP.
-- Phone alerts need HTTPS and VAPID keys: run `npm run vapid` and add both keys to the environment.
+- Phone alerts need HTTPS and VAPID keys: run `npm run vapid`, add both keys and set `VAPID_SUBJECT` (for example `mailto:you@yourcompany.com`).
 
 ## Connect the real device
 
@@ -78,15 +68,15 @@ A day is closed when the date has passed, or one hour after the shift ends. Aler
 
 ```
 src/
-  app.js, server.js        express setup, startup (migrate, optional seed, scheduler)
+  app.js, server.js        express setup, startup (migrate, first admin, scheduler)
   config/                  environment
   db/                      schema.sql, migrate, pool
-  lib/                     attendanceEngine, dashboard queries, notify (web push), exporters, audit, settings
+  lib/                     bootstrap (first admin), attendanceEngine, dashboard queries, notify (web push), exporters, audit, settings
   middleware/              auth, roles, same-origin check
-  routes/                  adms, auth, home/api, employees, setup (shifts, holidays, settings, audit), devices, attendance, reports, notifications
+  routes/                  adms, auth, home/api, employees, users, setup (shifts, holidays, settings, audit), devices, attendance, reports, notifications
   jobs/scheduler.js        15-minute day-closing job
   views/                   EJS pages
-scripts/                   seed, simulate-punch, generate-vapid
+scripts/                   create-admin, generate-vapid
 public/                    css, js, service worker, manifest, icons
 ```
 

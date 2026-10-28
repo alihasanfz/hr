@@ -97,6 +97,22 @@ async function save(req, res, id) {
   }
 }
 
+router.post('/:id/delete', async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).render('error', { title: 'No access', code: 403, message: 'Only an Admin can delete an employee.' });
+  const id = Number(req.params.id);
+  const { rows: [emp] } = await db.query('SELECT e.id, e.emp_code, e.full_name, e.user_id, u.role FROM employees e LEFT JOIN users u ON u.id = e.user_id WHERE e.id = $1', [id]);
+  if (!emp) return res.redirect('/employees?err=Employee not found.');
+  await db.query('DELETE FROM employees WHERE id = $1', [id]);
+  let keptLogin = false;
+  if (emp.user_id) {
+    const { rows: [a] } = await db.query("SELECT COUNT(*)::int AS n FROM users WHERE role = 'admin' AND active AND id <> $1", [emp.user_id]);
+    if (emp.user_id === req.user.id || (emp.role === 'admin' && !a.n)) keptLogin = true;
+    else await db.query('DELETE FROM users WHERE id = $1', [emp.user_id]);
+  }
+  await audit.log(req, 'employee.delete', 'employee', id, { emp_code: emp.emp_code, full_name: emp.full_name });
+  res.redirect(`/employees?ok=Deleted ${emp.full_name} with all attendance records.${keptLogin ? ' Their login was kept (it is needed as an Admin).' : ''}`);
+});
+
 router.post('/', (req, res) => save(req, res, null));
 router.post('/:id', (req, res) => save(req, res, Number(req.params.id)));
 

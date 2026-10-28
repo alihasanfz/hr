@@ -2,7 +2,7 @@ const webpush = require('web-push');
 const db = require('../db/pool');
 const config = require('../config');
 
-const pushReady = Boolean(config.vapid.publicKey && config.vapid.privateKey);
+const pushReady = Boolean(config.vapid.publicKey && config.vapid.privateKey && config.vapid.subject);
 if (pushReady) webpush.setVapidDetails(config.vapid.subject, config.vapid.publicKey, config.vapid.privateKey);
 
 async function push(title, body, url = '/notifications') {

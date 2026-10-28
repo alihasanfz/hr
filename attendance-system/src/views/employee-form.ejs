@@ -30,4 +30,12 @@
   <label class="check"><input type="checkbox" name="active" <%= emp ? (e.active ? 'checked' : '') : 'checked' %>> Active employee</label>
   <div class="actions"><button class="btn">Save employee</button><a class="btn ghost" href="/employees">Cancel</a></div>
 </form>
+<% if (emp && user.role === 'admin') { %>
+<form method="post" action="/employees/<%= emp.id %>/delete" class="form" data-confirm="Permanently delete <%= emp.full_name %> and all their punches and attendance records? This cannot be undone. To keep the history, untick Active instead.">
+  <fieldset><legend>Danger zone</legend>
+    <p class="muted">Deleting removes the employee, their login and all attendance history. To keep the history, untick "Active employee" above instead.</p>
+    <button class="btn danger">Delete employee</button>
+  </fieldset>
+</form>
+<% } %>
 <%- include('partials/foot') %>

@@ -16,7 +16,8 @@
       <td><a href="/attendance/employee/<%= e.id %>"><%= e.full_name %></a><br><span class="muted"><%= e.designation || '' %></span></td>
       <td><%= e.department || '' %></td><td><%= e.shift_name || 'No shift' %></td>
       <td class="mono"><%= e.device_user_id || 'Not linked' %></td><td><%= e.username || 'No login' %></td>
-      <td class="num"><a href="/employees/<%= e.id %>/edit">Edit</a></td>
+      <td class="num"><a href="/employees/<%= e.id %>/edit">Edit</a>
+        <% if (user.role === 'admin') { %><form method="post" action="/employees/<%= e.id %>/delete" class="inline" data-confirm="Permanently delete <%= e.full_name %> and all their punches and attendance records? This cannot be undone. To keep the history, set the employee to inactive instead."><button class="link danger">Delete</button></form><% } %></td>
     </tr>
   <% }) %>
   <% if (!rows.length) { %><tr><td colspan="7" class="muted">No employees match. Add one to get started.</td></tr><% } %>

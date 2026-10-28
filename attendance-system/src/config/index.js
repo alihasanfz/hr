@@ -7,14 +7,13 @@ const config = {
   databaseUrl: env.DATABASE_URL,
   dbSsl: /sslmode=require/.test(env.DATABASE_URL || '') || env.DATABASE_SSL === 'true',
   jwtSecret: env.JWT_SECRET || 'dev-only-change-me',
+  companyName: env.COMPANY_NAME || 'Attendance System',
   tz: env.TIMEZONE || 'Asia/Dhaka',
   autoMigrate: env.AUTO_MIGRATE !== 'false',
-  seedDemo: env.SEED_DEMO === 'true',
-  demoPassword: env.DEMO_PASSWORD || 'Demo@12345',
   vapid: {
     publicKey: env.VAPID_PUBLIC_KEY || '',
     privateKey: env.VAPID_PRIVATE_KEY || '',
-    subject: env.VAPID_SUBJECT || 'mailto:admin@example.com',
+    subject: env.VAPID_SUBJECT || '',
   },
 };
 

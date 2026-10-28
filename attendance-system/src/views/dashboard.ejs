@@ -44,7 +44,7 @@
     <h2>Latest punches</h2>
     <ul class="rows" id="recent">
       <% snap.recent.forEach((r) => { %><li><span class="mono"><%= r.time %></span><span><%= r.name %></span><span class="muted"><%= r.device %></span></li><% }) %>
-      <% if (!snap.recent.length) { %><li class="muted">No punches yet. Register a device under Devices, or run the simulator script.</li><% } %>
+      <% if (!snap.recent.length) { %><li class="muted">No punches yet. Register your device under Devices to start receiving punches.</li><% } %>
     </ul>
   </section>
   <section class="panel">

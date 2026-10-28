@@ -1,0 +1,15 @@
+<%- include('partials/head') %>
+<% const x = u || {}; %>
+<header class="page-head"><h1><%= u ? 'Edit ' + u.username : 'Add user' %></h1></header>
+<form method="post" action="<%= u ? '/users/' + u.id : '/users' %>" class="form">
+  <div class="grid">
+    <label>Username<input name="username" value="<%= x.username || '' %>" autocapitalize="none" required></label>
+    <label><%= u ? 'New password' : 'Password' %><input name="password" type="password" autocomplete="new-password" minlength="8" <%= u ? '' : 'required' %>><small class="muted"><%= u ? 'Leave empty to keep the current password.' : 'At least 8 characters.' %></small></label>
+    <label>Role<select name="role" <%= u && u.id === user.id ? 'disabled' : '' %>><% ['staff', 'hr', 'admin'].forEach((r) => { %><option value="<%= r %>" <%= (x.role || 'staff') === r ? 'selected' : '' %>><%= r === 'hr' ? 'HR' : r[0].toUpperCase() + r.slice(1) %></option><% }) %></select></label>
+  </div>
+  <% if (u && u.full_name) { %><p class="muted">Linked employee: <%= u.full_name %></p><% } %>
+  <label class="check"><input type="checkbox" name="active" <%= u ? (x.active ? 'checked' : '') : 'checked' %> <%= u && u.id === user.id ? 'disabled' : '' %>> Can sign in</label>
+  <% if (u && u.id === user.id) { %><p class="muted">You cannot change your own role or disable your own account.</p><% } %>
+  <div class="actions"><button class="btn">Save user</button><a class="btn ghost" href="/users">Cancel</a></div>
+</form>
+<%- include('partials/foot') %>

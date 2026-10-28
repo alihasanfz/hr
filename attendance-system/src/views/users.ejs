@@ -1,0 +1,20 @@
+<%- include('partials/head') %>
+<header class="page-head"><h1>Users</h1><a class="btn" href="/users/new">Add user</a></header>
+<p class="muted">Everyone who can sign in. Admin sees everything, HR manages staff and attendance, Staff sees only their own attendance.</p>
+<div class="scroll"><table class="tbl">
+  <thead><tr><th>Username</th><th>Role</th><th>Employee</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead>
+  <tbody>
+  <% rows.forEach((r) => { %>
+    <tr class="<%= r.active ? '' : 'dim' %>">
+      <td class="mono"><%= r.username %><% if (r.id === user.id) { %> <span class="muted">(you)</span><% } %></td>
+      <td><%= r.role === 'hr' ? 'HR' : r.role[0].toUpperCase() + r.role.slice(1) %></td>
+      <td><% if (r.employee_id) { %><a href="/employees/<%= r.employee_id %>/edit"><%= r.full_name %></a><% } else { %><span class="muted">Not linked</span><% } %></td>
+      <td><%= r.active ? 'Active' : 'Disabled' %></td>
+      <td class="muted"><%= r.last_login_at ? new Date(r.last_login_at).toLocaleString('en-GB', { timeZone: 'Asia/Dhaka' }) : 'Never' %></td>
+      <td class="num"><a href="/users/<%= r.id %>/edit">Edit</a>
+        <% if (r.id !== user.id) { %><form method="post" action="/users/<%= r.id %>/delete" class="inline" data-confirm="Delete user <%= r.username %>? They will no longer be able to sign in."><button class="link danger">Delete</button></form><% } %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table></div>
+<%- include('partials/foot') %>
