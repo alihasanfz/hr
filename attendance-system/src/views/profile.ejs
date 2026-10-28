@@ -1,0 +1,11 @@
+<%- include('partials/head') %>
+<header class="page-head"><h1>Profile</h1></header>
+<section class="panel"><p><strong><%= user.full_name || user.username %></strong><br><span class="muted">Username <%= user.username %> · <%= user.role === 'hr' ? 'HR' : user.role === 'admin' ? 'Admin' : 'Staff' %></span></p></section>
+<form method="post" action="/profile/password" class="form narrow">
+  <h2>Change password</h2>
+  <label>Current password<input type="password" name="current" autocomplete="current-password" required></label>
+  <label>New password<input type="password" name="next" autocomplete="new-password" minlength="8" required></label>
+  <label>Confirm new password<input type="password" name="confirm" autocomplete="new-password" minlength="8" required></label>
+  <div class="actions"><button class="btn">Update password</button></div>
+</form>
+<%- include('partials/foot') %>

@@ -1,0 +1,25 @@
+<%- include('partials/head') %>
+<header class="page-head"><h1>Employees</h1><a class="btn" href="/employees/new">Add employee</a></header>
+<% if (unmatched) { %><div class="flash warn">The device sent punches from <%= unmatched %> PIN<%= unmatched > 1 ? 's' : '' %> that are not linked to any employee. Enter the PIN as an employee's Device PIN to link them.</div><% } %>
+<form class="filters" method="get">
+  <label>Search<input name="q" value="<%= q %>" placeholder="Name, code or device PIN"></label>
+  <label>Department<select name="dept"><option value="">All</option><% depts.forEach((d) => { %><option <%= d === dept ? 'selected' : '' %>><%= d %></option><% }) %></select></label>
+  <label>Status<select name="status"><option value="active" <%= status === 'active' ? 'selected' : '' %>>Active</option><option value="inactive" <%= status === 'inactive' ? 'selected' : '' %>>Inactive</option><option value="all" <%= status === 'all' ? 'selected' : '' %>>All</option></select></label>
+  <button class="btn ghost">Filter</button>
+</form>
+<div class="scroll"><table class="tbl">
+  <thead><tr><th>Code</th><th>Name</th><th>Department</th><th>Shift</th><th>Device PIN</th><th>Login</th><th></th></tr></thead>
+  <tbody>
+  <% rows.forEach((e) => { %>
+    <tr class="<%= e.active ? '' : 'dim' %>">
+      <td class="mono"><%= e.emp_code %></td>
+      <td><a href="/attendance/employee/<%= e.id %>"><%= e.full_name %></a><br><span class="muted"><%= e.designation || '' %></span></td>
+      <td><%= e.department || '' %></td><td><%= e.shift_name || 'No shift' %></td>
+      <td class="mono"><%= e.device_user_id || 'Not linked' %></td><td><%= e.username || 'No login' %></td>
+      <td class="num"><a href="/employees/<%= e.id %>/edit">Edit</a></td>
+    </tr>
+  <% }) %>
+  <% if (!rows.length) { %><tr><td colspan="7" class="muted">No employees match. Add one to get started.</td></tr><% } %>
+  </tbody>
+</table></div>
+<%- include('partials/foot') %>

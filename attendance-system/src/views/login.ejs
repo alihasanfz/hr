@@ -1,0 +1,12 @@
+<%- include('partials/head') %>
+<section class="login">
+  <h1><%= company %></h1>
+  <p class="muted">Attendance system. Sign in with the username and password from your office.</p>
+  <% if (typeof error !== 'undefined' && error) { %><div class="flash bad" role="alert"><%= error %></div><% } %>
+  <form method="post" action="/login" class="stack">
+    <label>Username<input name="username" autocomplete="username" autocapitalize="none" required autofocus></label>
+    <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+    <button class="btn">Sign in</button>
+  </form>
+</section>
+<%- include('partials/foot') %>

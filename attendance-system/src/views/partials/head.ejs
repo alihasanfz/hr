@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title><%= typeof title !== 'undefined' && title ? title + ' | ' : '' %><%= company %></title>
+<meta name="theme-color" content="#0f1b2d">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="<%= user ? 'app' : 'bare' %>">
+<% if (user) {
+  const isStaff = user.role === 'staff';
+  const nav = isStaff
+    ? [['/', 'My day'], ['/my-attendance', 'My attendance'], ['/profile', 'Profile']]
+    : [['/', 'Overview'], ['/attendance', 'Attendance'], ['/employees', 'Employees'], ['/reports', 'Reports'], ['/notifications', 'Alerts'],
+       ['/shifts', 'Shifts'], ['/holidays', 'Holidays']]
+        .concat(user.role === 'admin' ? [['/devices', 'Devices'], ['/settings', 'Settings'], ['/audit', 'Audit log']] : [])
+        .concat([['/profile', 'Profile']]);
+  const isActive = (href) => href === '/' ? path === '/' : path.startsWith(href) || (href === '/my-attendance' && path.startsWith('/attendance/employee'));
+%>
+<button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">Menu</button>
+<aside class="side" id="side">
+  <div class="brand"><%= company %></div>
+  <nav>
+    <% nav.forEach(([href, label]) => { %>
+      <a href="<%= href %>" class="<%= isActive(href) ? 'on' : '' %>"><%= label %><% if (href === '/notifications' && unread) { %><span class="count"><%= unread %></span><% } %></a>
+    <% }) %>
+  </nav>
+  <form method="post" action="/logout" class="who">
+    <div><strong><%= user.full_name || user.username %></strong><br><span class="muted"><%= user.role === 'hr' ? 'HR' : user.role === 'admin' ? 'Admin' : 'Staff' %></span></div>
+    <button class="link">Sign out</button>
+  </form>
+</aside>
+<main class="main">
+<% } else { %><main class="bare-main"><% } %>
+<% if (typeof ok !== 'undefined' && ok) { %><div class="flash ok" role="status"><%= ok %></div><% } %>
+<% if (typeof err !== 'undefined' && err) { %><div class="flash bad" role="alert"><%= err %></div><% } %>

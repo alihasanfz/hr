@@ -1,0 +1,42 @@
+<%- include('partials/head') %>
+<% const d = edit || {}; %>
+<header class="page-head"><h1>Devices</h1></header>
+<section class="panel">
+  <h2>Connect a ZKTeco device</h2>
+  <p>On the device, open <strong>Comm. &gt; Cloud Server Setting</strong> and enter this server address. The device then pushes every punch here (ADMS).</p>
+  <p><code id="admsUrl"><%= admsUrl %></code> <button class="btn ghost" type="button" data-copy="#admsUrl">Copy</button></p>
+  <p class="muted">The serial number below must match the device exactly, or its punches are refused. The IP address and API URL are used for the connection test and for your records.</p>
+</section>
+<div class="scroll"><table class="tbl">
+  <thead><tr><th>Device</th><th>Serial number</th><th>Address</th><th>Last contact</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  <% rows.forEach((r) => { %><tr class="<%= r.active ? '' : 'dim' %>">
+    <td><%= r.name %><br><span class="muted"><%= r.model %><%= r.location ? ' · ' + r.location : '' %></span></td>
+    <td class="mono"><%= r.serial_number %></td>
+    <td class="mono"><% if (r.ip_address) { %><%= r.ip_address %>:<%= r.port %><br><% } %><%= r.api_url || '' %><% if (!r.ip_address && !r.api_url) { %><span class="muted">Not set</span><% } %></td>
+    <td><%= r.last_seen_at ? new Date(r.last_seen_at).toLocaleString('en-GB') : 'Never' %></td>
+    <td><span class="st <%= !r.active ? 'st-none' : r.online ? 'st-present' : 'st-absent' %>"><%= !r.active ? 'Disabled' : r.online ? 'Online' : 'Offline' %></span></td>
+    <td class="num"><button class="link" type="button" data-test="<%= r.id %>">Test connection</button>
+      <a href="/devices?edit=<%= r.id %>">Edit</a>
+      <form method="post" action="/devices/<%= r.id %>/delete" class="inline" data-confirm="Remove this device? Its punches are kept."><button class="link">Remove</button></form>
+      <div class="muted" id="test-<%= r.id %>" aria-live="polite"></div></td>
+  </tr><% }) %>
+  <% if (!rows.length) { %><tr><td colspan="6" class="muted">No devices yet. Add your ZKTeco MB20 VL below.</td></tr><% } %>
+  </tbody>
+</table></div>
+<form method="post" action="/devices" class="form">
+  <h2><%= edit ? 'Edit device' : 'Add device' %></h2>
+  <% if (edit) { %><input type="hidden" name="id" value="<%= edit.id %>"><% } %>
+  <div class="grid">
+    <label>Name<input name="name" value="<%= d.name || '' %>" required></label>
+    <label>Serial number<input name="serial_number" value="<%= d.serial_number || '' %>" required></label>
+    <label>Model<input name="model" value="<%= d.model || 'ZKTeco MB20 VL' %>"></label>
+    <label>IP address<input name="ip_address" value="<%= d.ip_address || '' %>" placeholder="192.168.1.201"></label>
+    <label>Port<input type="number" name="port" value="<%= d.port || 4370 %>"></label>
+    <label>API URL<input name="api_url" value="<%= d.api_url || '' %>" placeholder="https://"></label>
+    <label>Location<input name="location" value="<%= d.location || '' %>"></label>
+  </div>
+  <label class="check"><input type="checkbox" name="active" <%= edit ? (d.active ? 'checked' : '') : 'checked' %>> Accept punches from this device</label>
+  <div class="actions"><button class="btn">Save device</button><% if (edit) { %><a class="btn ghost" href="/devices">Cancel</a><% } %></div>
+</form>
+<%- include('partials/foot') %>

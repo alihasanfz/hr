@@ -1,0 +1,60 @@
+<%- include('partials/head') %>
+<% const t = snap.totals; const pct = (n) => t.expected ? Math.round((n / t.expected) * 100) : 0; %>
+<header class="page-head">
+  <div>
+    <h1>Today, <%= new Date(snap.date + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }) %></h1>
+    <p class="muted"><% if (snap.holiday) { %>Holiday: <%= snap.holiday %>. <% } %>Updated <span id="updated"><%= snap.time %></span>. Refreshes every 20 seconds.</p>
+  </div>
+</header>
+
+<section class="band" id="live" data-live-root>
+  <div class="band-main">
+    <div class="band-num"><span data-k="present"><%= t.present %></span><small> of <span data-k="expected"><%= t.expected %></span> in</small></div>
+    <div class="bar" role="img" aria-label="Attendance today">
+      <span class="seg on-time" id="barOn" style="width:<%= pct(t.onTime) %>%"></span>
+      <span class="seg late" id="barLate" style="width:<%= pct(t.late) %>%"></span>
+      <span class="seg none" id="barNot" style="width:<%= pct(t.notIn) %>%"></span>
+    </div>
+  </div>
+  <dl class="figures">
+    <div><dt><i class="dot on-time"></i>On time</dt><dd data-k="onTime"><%= t.onTime %></dd></div>
+    <div><dt><i class="dot late"></i>Late</dt><dd data-k="late"><%= t.late %></dd></div>
+    <div><dt><i class="dot none"></i>Not in yet</dt><dd data-k="notIn"><%= t.notIn %></dd></div>
+    <div><dt><i class="dot off"></i>Off today</dt><dd data-k="off"><%= t.off %></dd></div>
+  </dl>
+</section>
+
+<div class="cols">
+  <section class="panel">
+    <h2>Needs attention</h2>
+    <ul class="rows" id="attention">
+      <% snap.late.forEach((p) => { %><li><a href="/attendance/employee/<%= p.id %>"><%= p.name %></a><span class="muted"><%= p.dept %></span><span class="st st-late">In <%= p.in %> · <%= p.late %> min late</span></li><% }) %>
+      <% snap.notIn.forEach((p) => { %><li><a href="/attendance/employee/<%= p.id %>"><%= p.name %></a><span class="muted"><%= p.dept %></span><span class="st st-none">Not in yet</span></li><% }) %>
+      <% if (!snap.late.length && !snap.notIn.length) { %><li class="muted">Everyone expected today is in on time.</li><% } %>
+    </ul>
+  </section>
+  <section class="panel">
+    <h2>Last 7 days</h2>
+    <div class="chart"><canvas id="trend" height="200" aria-label="Attendance for the last 7 days"></canvas></div>
+  </section>
+</div>
+
+<div class="cols">
+  <section class="panel">
+    <h2>Latest punches</h2>
+    <ul class="rows" id="recent">
+      <% snap.recent.forEach((r) => { %><li><span class="mono"><%= r.time %></span><span><%= r.name %></span><span class="muted"><%= r.device %></span></li><% }) %>
+      <% if (!snap.recent.length) { %><li class="muted">No punches yet. Register a device under Devices, or run the simulator script.</li><% } %>
+    </ul>
+  </section>
+  <section class="panel">
+    <h2>By department</h2>
+    <table class="tbl" id="depts">
+      <thead><tr><th>Department</th><th class="num">In</th><th class="num">Late</th><th class="num">Expected</th></tr></thead>
+      <tbody>
+        <% snap.departments.forEach((d) => { %><tr><td><%= d.name %></td><td class="num"><%= d.present %></td><td class="num"><%= d.late %></td><td class="num"><%= d.total %></td></tr><% }) %>
+      </tbody>
+    </table>
+  </section>
+</div>
+<%- include('partials/foot', { charts: true }) %>

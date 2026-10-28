@@ -1,0 +1,32 @@
+<%- include('partials/head') %>
+<% const s = edit || {}; const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; %>
+<header class="page-head"><h1>Shifts</h1></header>
+<div class="scroll"><table class="tbl">
+  <thead><tr><th>Shift</th><th>Hours</th><th class="num">Grace (min)</th><th class="num">Overtime after (min)</th><th>Weekly off</th><th class="num">Staff</th><th></th></tr></thead>
+  <tbody>
+  <% rows.forEach((r) => { %><tr>
+    <td><%= r.name %></td><td class="mono"><%= r.st.slice(0, 5) %> to <%= r.et.slice(0, 5) %></td><td class="num"><%= r.grace_minutes %></td><td class="num"><%= r.overtime_after_minutes %></td>
+    <td><%= r.weekly_off.map((d) => days[d]).join(', ') || 'None' %></td><td class="num"><%= r.staff %></td>
+    <td class="num"><a href="/shifts?edit=<%= r.id %>">Edit</a>
+      <form method="post" action="/shifts/<%= r.id %>/delete" class="inline" data-confirm="Delete this shift?"><button class="link">Delete</button></form></td>
+  </tr><% }) %>
+  <% if (!rows.length) { %><tr><td colspan="7" class="muted">No shifts yet. Add the first one below.</td></tr><% } %>
+  </tbody>
+</table></div>
+<form method="post" action="/shifts" class="form">
+  <h2><%= edit ? 'Edit shift' : 'Add shift' %></h2>
+  <% if (edit) { %><input type="hidden" name="id" value="<%= edit.id %>"><% } %>
+  <div class="grid">
+    <label>Name<input name="name" value="<%= s.name || '' %>" required></label>
+    <label>Start time<input type="time" name="start_time" value="<%= s.st ? s.st.slice(0, 5) : '09:00' %>" required></label>
+    <label>End time<input type="time" name="end_time" value="<%= s.et ? s.et.slice(0, 5) : '18:00' %>" required></label>
+    <label>Late grace (minutes)<input type="number" min="0" name="grace_minutes" value="<%= s.grace_minutes ?? 10 %>"></label>
+    <label>Early-out grace (minutes)<input type="number" min="0" name="early_out_grace_minutes" value="<%= s.early_out_grace_minutes ?? 0 %>"></label>
+    <label>Overtime starts after (minutes)<input type="number" min="0" name="overtime_after_minutes" value="<%= s.overtime_after_minutes ?? 30 %>"></label>
+  </div>
+  <fieldset><legend>Weekly off</legend>
+    <div class="days"><% days.forEach((d, i) => { %><label class="check"><input type="checkbox" name="weekly_off" value="<%= i %>" <%= (edit ? s.weekly_off : [5]).includes(i) ? 'checked' : '' %>> <%= d %></label><% }) %></div>
+  </fieldset>
+  <div class="actions"><button class="btn">Save shift</button><% if (edit) { %><a class="btn ghost" href="/shifts">Cancel</a><% } %></div>
+</form>
+<%- include('partials/foot') %>

@@ -1,0 +1,44 @@
+<%- include('partials/head') %>
+<% const shift = (n) => new Date(Date.parse(date + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10); %>
+<header class="page-head">
+  <h1>Attendance</h1>
+  <form method="post" action="/attendance/recalculate" data-confirm="Recalculate every employee for <%= date %>?"><input type="hidden" name="date" value="<%= date %>"><button class="btn ghost">Recalculate this day</button></form>
+</header>
+<form class="filters" method="get">
+  <a class="btn ghost" href="/attendance?date=<%= shift(-1) %>" aria-label="Previous day">Previous</a>
+  <label>Date<input type="date" name="date" value="<%= date %>" max="<%= today %>"></label>
+  <label>Department<select name="dept"><option value="">All</option><% depts.forEach((d) => { %><option <%= d === dept ? 'selected' : '' %>><%= d %></option><% }) %></select></label>
+  <label>Show<select name="status">
+    <% [['', 'Everyone'], ['present', 'On time'], ['late', 'Late'], ['absent', 'Absent'], ['not_in', 'No record'], ['missing', 'Missing check-out']].forEach(([v, l]) => { %><option value="<%= v %>" <%= v === status ? 'selected' : '' %>><%= l %></option><% }) %></select></label>
+  <button class="btn ghost">Apply</button>
+  <% if (date < today) { %><a class="btn ghost" href="/attendance?date=<%= shift(1) %>">Next</a><% } %>
+</form>
+<div class="scroll"><table class="tbl">
+  <thead><tr><th>Employee</th><th>Shift</th><th>Status</th><th>In</th><th>Out</th><th class="num">Late</th><th class="num">Early out</th><th class="num">Overtime</th><th class="num">Worked</th></tr></thead>
+  <tbody>
+  <% rows.forEach((r) => { %><tr>
+    <td><a href="/attendance/employee/<%= r.id %>"><%= r.full_name %></a><br><span class="muted"><%= r.emp_code %><%= r.department ? ' · ' + r.department : '' %></span></td>
+    <td><%= r.shift_name || 'No shift' %></td>
+    <td><%- badge(r.status, date === today ? 'Not in yet' : 'No record') %><% if (r.missing_punch) { %> <span class="st st-late">No check-out</span><% } %><% if (r.remarks) { %><br><span class="muted"><%= r.remarks %></span><% } %></td>
+    <td class="mono"><%= fmtClock(r.ci) %></td><td class="mono"><%= fmtClock(r.co) %></td>
+    <td class="num"><%= r.late_minutes ? r.late_minutes + ' min' : '–' %></td><td class="num"><%= r.early_out_minutes ? r.early_out_minutes + ' min' : '–' %></td>
+    <td class="num"><%= fmtDur(r.overtime_minutes) %></td><td class="num"><%= fmtDur(r.work_minutes) %></td>
+  </tr><% }) %>
+  <% if (!rows.length) { %><tr><td colspan="9" class="muted">Nothing matches these filters.</td></tr><% } %>
+  </tbody>
+</table></div>
+
+<details class="panel fold">
+  <summary>Add a missed punch</summary>
+  <form method="post" action="/attendance/punch" class="form">
+    <div class="grid">
+      <label>Employee<select name="employee_id" required><option value="">Choose</option><% people.forEach((p) => { %><option value="<%= p.id %>"><%= p.full_name %> (<%= p.emp_code %>)</option><% }) %></select></label>
+      <label>Date<input type="date" name="date" value="<%= date %>" max="<%= today %>" required></label>
+      <label>Time<input type="time" name="time" required></label>
+      <label>Reason<input name="note" placeholder="For example: device was offline" required></label>
+    </div>
+    <div class="actions"><button class="btn">Add punch</button></div>
+    <p class="muted">Manual punches are marked as manual and recorded in the audit log.</p>
+  </form>
+</details>
+<%- include('partials/foot') %>

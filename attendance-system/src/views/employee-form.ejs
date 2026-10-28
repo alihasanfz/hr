@@ -1,0 +1,33 @@
+<%- include('partials/head') %>
+<% const e = emp || {}; %>
+<header class="page-head"><h1><%= emp ? 'Edit ' + emp.full_name : 'Add employee' %></h1></header>
+<form method="post" action="<%= emp ? '/employees/' + emp.id : '/employees' %>" class="form">
+  <fieldset><legend>Profile</legend>
+    <div class="grid">
+      <label>Employee code<input name="emp_code" value="<%= e.emp_code || '' %>" required></label>
+      <label>Full name<input name="full_name" value="<%= e.full_name || '' %>" required></label>
+      <label>Department<input name="department" value="<%= e.department || '' %>"></label>
+      <label>Designation<input name="designation" value="<%= e.designation || '' %>"></label>
+      <label>Phone<input name="phone" value="<%= e.phone || '' %>" inputmode="tel"></label>
+      <label>Join date<input type="date" name="join_date" value="<%= e.join_date_s || '' %>"></label>
+    </div>
+  </fieldset>
+  <fieldset><legend>Attendance</legend>
+    <div class="grid">
+      <label>Shift<select name="shift_id"><option value="">No shift</option><% shifts.forEach((s) => { %><option value="<%= s.id %>" <%= String(e.shift_id) === String(s.id) ? 'selected' : '' %>><%= s.name %></option><% }) %></select></label>
+      <label>Device PIN<input name="device_user_id" value="<%= e.device_user_id || '' %>" inputmode="numeric"><small class="muted">The user ID enrolled on the ZKTeco device.</small></label>
+    </div>
+  </fieldset>
+  <fieldset><legend>Sign-in</legend>
+    <div class="grid">
+      <label>Username<input name="username" value="<%= e.username || '' %>" autocapitalize="none"></label>
+      <label><%= e.username ? 'New password' : 'Password' %><input name="password" type="password" autocomplete="new-password" minlength="8"><small class="muted"><%= e.username ? 'Leave empty to keep the current password.' : 'Needed together with a username. At least 8 characters.' %></small></label>
+      <% if (user.role === 'admin') { %>
+      <label>Role<select name="role"><% ['staff', 'hr', 'admin'].forEach((r) => { %><option value="<%= r %>" <%= (e.role || 'staff') === r ? 'selected' : '' %>><%= r === 'hr' ? 'HR' : r[0].toUpperCase() + r.slice(1) %></option><% }) %></select></label>
+      <% } %>
+    </div>
+  </fieldset>
+  <label class="check"><input type="checkbox" name="active" <%= emp ? (e.active ? 'checked' : '') : 'checked' %>> Active employee</label>
+  <div class="actions"><button class="btn">Save employee</button><a class="btn ghost" href="/employees">Cancel</a></div>
+</form>
+<%- include('partials/foot') %>

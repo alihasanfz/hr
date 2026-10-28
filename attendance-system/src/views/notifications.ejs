@@ -1,0 +1,15 @@
+<%- include('partials/head') %>
+<header class="page-head"><h1>Alerts</h1>
+  <div class="actions"><button class="btn ghost" type="button" id="pushBtn" hidden>Turn on phone alerts</button>
+  <form method="post" action="/notifications/read-all"><button class="btn ghost">Mark all as read</button></form></div></header>
+<p class="muted" id="pushNote"></p>
+<ul class="rows alerts">
+  <% rows.forEach((n) => { %><li class="<%= n.is_read ? 'read' : '' %>">
+    <span class="st st-<%= n.kind === 'late' || n.kind === 'early_out' || n.kind === 'missing_punch' ? 'late' : 'absent' %>"><%= n.title %></span>
+    <span><%= n.body %></span>
+    <span class="muted"><%= new Date(n.created_at).toLocaleString('en-GB') %></span>
+    <% if (!n.is_read) { %><form method="post" action="/notifications/<%= n.id %>/read" class="inline"><button class="link">Mark read</button></form><% } %>
+  </li><% }) %>
+  <% if (!rows.length) { %><li class="muted">No alerts yet. Late arrivals, absences, missing check-outs and early departures appear here.</li><% } %>
+</ul>
+<%- include('partials/foot') %>

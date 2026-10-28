@@ -1,0 +1,10 @@
+<%- include('partials/head') %>
+<header class="page-head"><h1>Audit log</h1></header>
+<div class="scroll"><table class="tbl">
+  <thead><tr><th>When</th><th>User</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
+  <tbody>
+  <% rows.forEach((r) => { %><tr><td><%= new Date(r.created_at).toLocaleString('en-GB') %></td><td><%= r.username || 'System' %></td><td class="mono"><%= r.action %></td><td><%= r.entity || '' %> <%= r.entity_id || '' %></td><td class="muted"><%= r.details ? JSON.stringify(r.details) : '' %></td></tr><% }) %>
+  <% if (!rows.length) { %><tr><td colspan="5" class="muted">Nothing recorded yet.</td></tr><% } %>
+  </tbody>
+</table></div>
+<%- include('partials/foot') %>

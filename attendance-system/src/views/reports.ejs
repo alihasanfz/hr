@@ -1,0 +1,24 @@
+<%- include('partials/head') %>
+<header class="page-head"><h1>Reports</h1></header>
+<form class="filters" method="get">
+  <input type="hidden" name="run" value="1">
+  <label>Report<select name="type"><option value="detail" <%= f.type === 'detail' ? 'selected' : '' %>>Daily detail</option><option value="summary" <%= f.type === 'summary' ? 'selected' : '' %>>Summary per employee</option></select></label>
+  <label>From<input type="date" name="from" value="<%= f.from %>"></label>
+  <label>To<input type="date" name="to" value="<%= f.to %>"></label>
+  <label>Department<select name="dept"><option value="">All</option><% depts.forEach((d) => { %><option <%= d === f.dept ? 'selected' : '' %>><%= d %></option><% }) %></select></label>
+  <label>Employee<select name="employee"><option value="">All</option><% people.forEach((p) => { %><option value="<%= p.id %>" <%= String(p.id) === String(f.employee) ? 'selected' : '' %>><%= p.full_name %></option><% }) %></select></label>
+  <button class="btn">Show report</button>
+</form>
+<% if (result) { %>
+<div class="page-head"><p class="muted"><%= total %> row<%= total === 1 ? '' : 's' %> from <%= f.from %> to <%= f.to %>.</p>
+  <div class="actions"><a class="btn ghost" href="/reports/export?format=xlsx&<%= qs %>">Download Excel</a><a class="btn ghost" href="/reports/export?format=pdf&<%= qs %>">Download PDF</a></div></div>
+<div class="scroll"><table class="tbl">
+  <thead><tr><% result.columns.forEach((c) => { %><th><%= c.label %></th><% }) %></tr></thead>
+  <tbody>
+    <% result.rows.slice(0, 300).forEach((r) => { %><tr><% result.columns.forEach((c) => { %><td><%= r[c.key] %></td><% }) %></tr><% }) %>
+    <% if (!result.rows.length) { %><tr><td colspan="<%= result.columns.length %>" class="muted">No records for these filters.</td></tr><% } %>
+  </tbody>
+</table></div>
+<% if (total > 300) { %><p class="muted">Showing the first 300 rows. The downloads contain all <%= total %>.</p><% } %>
+<% } else { %><section class="empty"><p>Choose a report and date range, then select Show report.</p></section><% } %>
+<%- include('partials/foot') %>

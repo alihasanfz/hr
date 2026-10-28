@@ -1,0 +1,28 @@
+<%- include('partials/head') %>
+<header class="page-head">
+  <div><h1><%= emp.full_name %></h1><p class="muted"><%= emp.emp_code %><%= emp.designation ? ' · ' + emp.designation : '' %><%= emp.department ? ' · ' + emp.department : '' %></p></div>
+  <div class="pager"><a class="btn ghost" href="?month=<%= prev %>">Previous</a><strong><%= month %></strong><% if (canNext) { %><a class="btn ghost" href="?month=<%= next %>">Next</a><% } %></div>
+</header>
+<section class="band">
+  <dl class="figures wide">
+    <div><dt>Days present</dt><dd><%= data.sum.present %></dd></div>
+    <div><dt>Late days</dt><dd><%= data.sum.late %></dd></div>
+    <div><dt>Minutes late</dt><dd><%= data.sum.lateMinutes %></dd></div>
+    <div><dt>Absent days</dt><dd><%= data.sum.absent %></dd></div>
+    <div><dt>Overtime</dt><dd><%= fmtDur(data.sum.overtimeMinutes) %></dd></div>
+    <div><dt>Hours worked</dt><dd><%= fmtDur(data.sum.workMinutes) %></dd></div>
+  </dl>
+</section>
+<div class="scroll"><table class="tbl">
+  <thead><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th><th class="num">Late</th><th class="num">Early out</th><th class="num">Overtime</th><th class="num">Worked</th></tr></thead>
+  <tbody>
+  <% data.rows.forEach((r) => { %><tr>
+    <td class="mono"><%= r.date %></td><td><%- badge(r.status) %><% if (r.missing_punch) { %> <span class="st st-late">No check-out</span><% } %><% if (r.remarks) { %><br><span class="muted"><%= r.remarks %></span><% } %></td>
+    <td class="mono"><%= fmtClock(r.ci) %></td><td class="mono"><%= fmtClock(r.co) %></td>
+    <td class="num"><%= r.late_minutes ? r.late_minutes + ' min' : '–' %></td><td class="num"><%= r.early_out_minutes ? r.early_out_minutes + ' min' : '–' %></td>
+    <td class="num"><%= fmtDur(r.overtime_minutes) %></td><td class="num"><%= fmtDur(r.work_minutes) %></td>
+  </tr><% }) %>
+  <% if (!data.rows.length) { %><tr><td colspan="8" class="muted">No attendance recorded for this month.</td></tr><% } %>
+  </tbody>
+</table></div>
+<%- include('partials/foot') %>

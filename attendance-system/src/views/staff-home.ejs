@@ -1,0 +1,31 @@
+<%- include('partials/head') %>
+<header class="page-head"><h1>Hello, <%= user.full_name || user.username %></h1>
+  <p class="muted"><%= new Date(now.date + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }) %></p></header>
+<% if (!data) { %>
+  <section class="empty"><p>Your login is not linked to an employee profile yet. Ask HR to link it so your attendance shows here.</p></section>
+<% } else { %>
+<section class="band">
+  <div class="band-main">
+    <div class="band-num"><% if (today && today.ci) { %><span>In <%= fmtClock(today.ci) %></span><% } else { %><span>Not in yet</span><% } %></div>
+    <p class="muted"><% if (today) { %><%- badge(today.status) %> <% if (today.co) { %>Out <%= fmtClock(today.co) %>. Worked <%= fmtDur(today.work_minutes) %>.<% } %><% } else { %>No punch recorded today.<% } %></p>
+  </div>
+  <dl class="figures">
+    <div><dt>Days present</dt><dd><%= data.sum.present %></dd></div>
+    <div><dt>Late days</dt><dd><%= data.sum.late %></dd></div>
+    <div><dt>Absent days</dt><dd><%= data.sum.absent %></dd></div>
+    <div><dt>Overtime</dt><dd><%= fmtDur(data.sum.overtimeMinutes) %></dd></div>
+  </dl>
+</section>
+<section class="panel">
+  <h2>This month</h2>
+  <div class="scroll"><table class="tbl">
+    <thead><tr><th>Date</th><th>Status</th><th>In</th><th>Out</th><th class="num">Worked</th></tr></thead>
+    <tbody>
+      <% data.rows.slice(0, 31).forEach((r) => { %><tr><td><%= r.date %></td><td><%- badge(r.status) %><% if (r.missing_punch) { %> <span class="st st-late">No check-out</span><% } %></td><td><%= fmtClock(r.ci) %></td><td><%= fmtClock(r.co) %></td><td class="num"><%= fmtDur(r.work_minutes) %></td></tr><% }) %>
+      <% if (!data.rows.length) { %><tr><td colspan="5" class="muted">No attendance recorded this month yet.</td></tr><% } %>
+    </tbody>
+  </table></div>
+  <p><a href="/my-attendance">See other months</a></p>
+</section>
+<% } %>
+<%- include('partials/foot') %>
